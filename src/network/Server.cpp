@@ -1,3 +1,4 @@
+#include "Handle_Client.h"
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -47,11 +48,21 @@ int main() {
   }
 
   // Accept a client connection
-  SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
-  if (clientSocket == INVALID_SOCKET) {
-    std::cout << "Accept failed: " << WSAGetLastError() << std::endl;
-    closesocket(serverSocket);
-    WSACleanup();
-    return 1;
+  while (true) {
+    SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
+    if (clientSocket == INVALID_SOCKET) {
+      std::cout << "Accept failed: " << WSAGetLastError() << std::endl;
+      continue;
+    }
+    {
+      std::lock_guard<std::mutex> lock(clientsMutex);
+      clients.push_back(clientSocket);
+    }
+    std::thread(handleClient, clientSocket).detach();
+    std::cout << "New client connected!\n";
   }
+
+  closesocket(serverSocket);
+  WSACleanup();
+  return 0;
 };
