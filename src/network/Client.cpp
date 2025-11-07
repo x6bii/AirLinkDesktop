@@ -6,18 +6,84 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-void reciveMessages(SOCKET serverSocket) {
-  char buffer[512];
-  while (true) {
-    int bytesRecived = recv(serverSocket, buffer, sizeof(buffer) - 1, 0);
-    if (bytesRecived <= 0) {
-      std::cout << "Disconnected from server" << std::endl;
-      break;
-    };
-    buffer[bytesRecived] = '\0';
-    std::cout << "Server says: " << buffer << std::endl;
-  };
-};
+bool reciveAll(SOCKET sock, char *data, int length) {
+  int totalReceived = 0;
+  while (totalReceived < length) {
+    int receive = recv(sock, data + totalReceived, length - totalReceived, 0);
+    if (receive <= 0)
+      return false; // disconnected or error
+    totalReceived += receive;
+  }
+  return true;
+}
+
+void reciveFiles(SOCKET serverSocket) {
+
+  std::cout << "- Waiting for clients to send..." << std::endl;
+
+  // Receive file name length
+  int netLength = 0;
+  if (!reciveAll(serverSocket, (char *)&netLength, sizeof(netLength))) {
+    std::cout << "- Receiving file name length failed" << std::endl;
+    return;
+  }
+  int fileNameLength = ntohl(netLength); // convert to host byte order
+
+  // Receive file name
+  if (fileNameLength <= 0 || fileNameLength >= 512) {
+    std::cout << "- Invalid file name length: " << fileNameLength << std::endl;
+    return;
+  }
+
+  char fileName[512];
+  if (!reciveAll(serverSocket, fileName, fileNameLength)) {
+    std::cout << "- Receiving file name failed" << std::endl;
+    return;
+  }
+  fileName[fileNameLength] = '\0';
+
+  std::cout << "[ FILE ]: \"" << fileName << "\" received successfully"
+            << std::endl;
+}
+
+bool sendAll(SOCKET sock, const char *data, int length) {
+  int totalSent = 0;
+  while (totalSent < length) {
+    int sent = send(sock, data + totalSent, length - totalSent, 0);
+    if (sent <= 0)
+      return false; // disconnected or error
+    totalSent += sent;
+  }
+  return true;
+}
+
+void sendFiles(SOCKET serverSocket) {
+
+  // Ask for file path
+  std::string path;
+  std::cout << "- Please enter file path: ";
+  std::getline(std::cin, path);
+
+  // Extract file name
+  size_t fileNameIndex = path.find_last_of("\\/");
+  std::string fileName = path.substr(fileNameIndex + 1);
+
+  // Send file name length in network byte order
+  int fileNameLength = fileName.size();
+  int netLength = htonl(fileNameLength);
+  if (!sendAll(serverSocket, (char *)&netLength, sizeof(netLength))) {
+    std::cout << "- Failed to send file name length.\n";
+    return;
+  }
+
+  // Send the file name itself
+  if (!sendAll(serverSocket, fileName.c_str(), fileNameLength)) {
+    std::cout << "- Failed to send file name.\n";
+    return;
+  }
+
+  std::cout << "[ FILE ]: \"" << fileName << "\" sent successfully.\n";
+}
 
 int main() {
   WSADATA wsaData;
@@ -42,16 +108,18 @@ int main() {
     WSACleanup();
     return 1;
   }
-  std::cout << "Connected to server" << std::endl;
-  std::thread reciveThread(reciveMessages, clientSocket);
-  reciveThread.detach();
+  std::cout << "- Connected to server" << std::endl;
   std::string msg;
   while (true) {
     std::getline(std::cin, msg);
     if (msg == "exit") {
+      std::cout << "- Client closed sucessfully" << std::endl;
       break;
+    } else if (msg == "receive") {
+      reciveFiles(clientSocket);
+    } else if (msg == "send") {
+      sendFiles(clientSocket);
     }
-    send(clientSocket, msg.c_str(), msg.size(), 0);
   }
   closesocket(clientSocket);
   WSACleanup();
