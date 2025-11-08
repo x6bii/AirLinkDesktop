@@ -33,7 +33,7 @@ void handleClient(SOCKET client) {
     }
 
     // Receive file size
-    int fileSize;
+    long long fileSize;
     if (recv(client, (char *)&fileSize, sizeof(fileSize), 0) <= 0)
       break;
 
@@ -41,7 +41,8 @@ void handleClient(SOCKET client) {
     char buffer[4096];
     int bytesReceived = 0;
     while (bytesReceived < fileSize) {
-      int toReceive = std::min(fileSize - bytesReceived, (int)sizeof(buffer));
+      int toReceive =
+          (int)std::min<long long>(fileSize - bytesReceived, sizeof(buffer));
       int r = recv(client, buffer, toReceive, 0);
       if (r <= 0)
         break;

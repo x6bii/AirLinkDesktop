@@ -13,14 +13,15 @@ void receiveFiles(SOCKET serverSocket) {
 
   // Receive file name length
   int fileNameLength = 0;
-  if (!recv(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0)) {
+  if (recv(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0) <=
+      0) {
     std::cout << "- Receiving file name length failed" << std::endl;
     return;
   }
 
   // Receive file name
   char fileName[512];
-  if (!recv(serverSocket, fileName, fileNameLength, 0)) {
+  if (recv(serverSocket, fileName, fileNameLength, 0) <= 0) {
     std::cout << "- Receiving file name failed" << std::endl;
     return;
   }
@@ -37,7 +38,7 @@ void receiveFiles(SOCKET serverSocket) {
   }
 
   // Get file size on bytes
-  int fileSize;
+  long long fileSize;
   if (recv(serverSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0)
     return;
 
@@ -45,8 +46,9 @@ void receiveFiles(SOCKET serverSocket) {
   char buffer[4096];
   int receivedBytes = 0;
   while (receivedBytes < fileSize) {
-    int toRecive = std::min(fileSize - receivedBytes, (int)sizeof(buffer));
-    int r = recv(serverSocket, buffer, toRecive, 0);
+    int toReceive =
+        (int)std::min<long long>(fileSize - receivedBytes, sizeof(buffer));
+    int r = recv(serverSocket, buffer, toReceive, 0);
     if (r <= 0)
       break;
     file.write(buffer, r);
@@ -89,7 +91,7 @@ void sendFiles(SOCKET serverSocket) {
 
   // Send file size (in bytes)
   file.seekg(0, std::ios::end);
-  int fileSize = file.tellg();
+  long long fileSize = file.tellg();
   file.seekg(0, std::ios::beg);
   send(serverSocket, (char *)&fileSize, sizeof(fileSize), 0);
 
