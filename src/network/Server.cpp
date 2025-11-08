@@ -9,7 +9,7 @@ int main() {
   WSADATA wsaData;
   int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (result != 0) {
-    std::cout << "WsaStartup Failed: " << result << std::endl;
+    std::cout << "[ WINSOCK2 ] : WsaStartup Failed: " << result << std::endl;
     WSACleanup();
     return 1;
   }
@@ -17,7 +17,8 @@ int main() {
   // Create server socket
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (serverSocket == INVALID_SOCKET) {
-    std::cout << "Socket creation failed: " << WSAGetLastError() << std::endl;
+    std::cout << "[ WINSOCK2 ] : Socket creation failed: " << WSAGetLastError()
+              << std::endl;
     WSACleanup();
     return 1;
   }
@@ -31,7 +32,8 @@ int main() {
   // Bind address
   if (bind(serverSocket, (sockaddr *)&serverAddress, sizeof(serverAddress)) ==
       SOCKET_ERROR) {
-    std::cout << "Binding socket error: " << WSAGetLastError() << std::endl;
+    std::cout << "[ SERVER ] : Binding socket error: " << WSAGetLastError()
+              << std::endl;
     closesocket(serverSocket);
     WSACleanup();
     return 1;
@@ -39,19 +41,21 @@ int main() {
 
   // Listen to clients
   if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
-    std::cout << "Error listening to: " << WSAGetLastError() << std::endl;
+    std::cout << "[ SERVER ] : Error listening to: " << WSAGetLastError()
+              << std::endl;
     closesocket(serverSocket);
     WSACleanup();
     return 1;
   } else {
-    std::cout << "Server listening on port 54000...\n";
+    std::cout << "[ SERVER ] : Server listening on port 54000\n";
   }
 
   // Accept a client connection
   while (true) {
     SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
     if (clientSocket == INVALID_SOCKET) {
-      std::cout << "Accept failed: " << WSAGetLastError() << std::endl;
+      std::cout << "[ CLIENT ] : Accept failed: " << WSAGetLastError()
+                << std::endl;
       continue;
     }
     {
@@ -59,7 +63,7 @@ int main() {
       clients.push_back(clientSocket);
     }
     std::thread(handleClient, clientSocket).detach();
-    std::cout << "New client connected!\n";
+    std::cout << "[ CLIENT ] : New client connected!\n";
   }
 
   closesocket(serverSocket);

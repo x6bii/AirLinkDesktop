@@ -12,19 +12,13 @@ void receiveFiles(SOCKET serverSocket) {
   std::cout << "- Waiting for clients to send..." << std::endl;
 
   // Receive file name length
-  int netLength = 0;
-  if (!recv(serverSocket, (char *)&netLength, sizeof(netLength), 0)) {
+  int fileNameLength = 0;
+  if (!recv(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0)) {
     std::cout << "- Receiving file name length failed" << std::endl;
     return;
   }
-  int fileNameLength = ntohl(netLength); // convert to host byte order
 
   // Receive file name
-  if (fileNameLength <= 0 || fileNameLength >= 512) {
-    std::cout << "- Invalid file name length: " << fileNameLength << std::endl;
-    return;
-  }
-
   char fileName[512];
   if (!recv(serverSocket, fileName, fileNameLength, 0)) {
     std::cout << "- Receiving file name failed" << std::endl;
@@ -32,7 +26,34 @@ void receiveFiles(SOCKET serverSocket) {
   }
   fileName[fileNameLength] = '\0';
 
-  std::cout << "[ FILE ]: \"" << fileName << "\" received successfully"
+  // Create the file for writing
+  std::string path = "D:\\Adam\\AirLink\\";
+  std::string fullPath = path + fileName;
+  std::ofstream file(fullPath, std::ios::binary);
+  if (!file) {
+    std::cout << "- The file " << fileName
+              << " can't be created on path : " << "\"" << path << "\""
+              << std::endl;
+  }
+
+  // Get file size on bytes
+  int fileSize;
+  if (recv(serverSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0)
+    return;
+
+  // Get & write the file data
+  char buffer[4096];
+  int receivedBytes = 0;
+  while (receivedBytes < fileSize) {
+    int toRecive = std::min(fileSize - receivedBytes, (int)sizeof(buffer));
+    int r = recv(serverSocket, buffer, toRecive, 0);
+    if (r <= 0)
+      break;
+    file.write(buffer, r);
+    receivedBytes += r;
+  }
+  file.close();
+  std::cout << "- The file \"" << fileName << "\" received successfully"
             << std::endl;
 }
 
@@ -46,6 +67,13 @@ void sendFiles(SOCKET serverSocket) {
   size_t fileNameIndex = path.find_last_of("\\/");
   std::string fileName = path.substr(fileNameIndex + 1);
 
+  // Open the file and reads it in binary mode
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    std::cout << "- Failed to open the file " << fileName << std::endl;
+    return;
+  }
+
   // Send file name length in network byte order
   int fileNameLength = fileName.size();
   if (!send(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0)) {
@@ -56,13 +84,6 @@ void sendFiles(SOCKET serverSocket) {
   // Send the file name itself
   if (!send(serverSocket, fileName.c_str(), fileNameLength, 0)) {
     std::cout << "- Failed to send file name.\n";
-    return;
-  }
-
-  // Open the file and reads it in binary mode
-  std::ifstream file(path, std::ios::binary);
-  if (!file) {
-    std::cout << "- Failed to open the file " << fileName << std::endl;
     return;
   }
 
@@ -79,19 +100,21 @@ void sendFiles(SOCKET serverSocket) {
     int bytesRead = file.gcount();
     send(serverSocket, buffer, bytesRead, 0);
   }
-  std::cout << "[ FILE ]: \"" << fileName << "\" sent successfully to server\n";
+  std::cout << "- The file \"" << fileName
+            << "\" sent successfully to server\n";
   file.close();
 }
 
 int main() {
   WSADATA wsaData;
   if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-    std::cerr << "WSAStartup failed" << std::endl;
+    std::cerr << "- WSAStartup failed" << std::endl;
     return 1;
   }
   SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (clientSocket == INVALID_SOCKET) {
-    std::cerr << "Socket creation failed: " << WSAGetLastError() << std::endl;
+    std::cerr << "- Socket creation failed : " << WSAGetLastError()
+              << std::endl;
     WSACleanup();
     return 1;
   }
@@ -101,7 +124,7 @@ int main() {
   inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
   if (connect(clientSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) ==
       SOCKET_ERROR) {
-    std::cerr << "Connection failed: " << WSAGetLastError() << std::endl;
+    std::cerr << "- Connection failed : " << WSAGetLastError() << std::endl;
     closesocket(clientSocket);
     WSACleanup();
     return 1;
