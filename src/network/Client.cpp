@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -6,24 +7,13 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-bool reciveAll(SOCKET sock, char *data, int length) {
-  int totalReceived = 0;
-  while (totalReceived < length) {
-    int receive = recv(sock, data + totalReceived, length - totalReceived, 0);
-    if (receive <= 0)
-      return false; // disconnected or error
-    totalReceived += receive;
-  }
-  return true;
-}
-
-void reciveFiles(SOCKET serverSocket) {
+void receiveFiles(SOCKET serverSocket) {
 
   std::cout << "- Waiting for clients to send..." << std::endl;
 
   // Receive file name length
   int netLength = 0;
-  if (!reciveAll(serverSocket, (char *)&netLength, sizeof(netLength))) {
+  if (!recv(serverSocket, (char *)&netLength, sizeof(netLength), 0)) {
     std::cout << "- Receiving file name length failed" << std::endl;
     return;
   }
@@ -36,7 +26,7 @@ void reciveFiles(SOCKET serverSocket) {
   }
 
   char fileName[512];
-  if (!reciveAll(serverSocket, fileName, fileNameLength)) {
+  if (!recv(serverSocket, fileName, fileNameLength, 0)) {
     std::cout << "- Receiving file name failed" << std::endl;
     return;
   }
@@ -46,19 +36,7 @@ void reciveFiles(SOCKET serverSocket) {
             << std::endl;
 }
 
-bool sendAll(SOCKET sock, const char *data, int length) {
-  int totalSent = 0;
-  while (totalSent < length) {
-    int sent = send(sock, data + totalSent, length - totalSent, 0);
-    if (sent <= 0)
-      return false; // disconnected or error
-    totalSent += sent;
-  }
-  return true;
-}
-
 void sendFiles(SOCKET serverSocket) {
-
   // Ask for file path
   std::string path;
   std::cout << "- Please enter file path: ";
@@ -70,19 +48,39 @@ void sendFiles(SOCKET serverSocket) {
 
   // Send file name length in network byte order
   int fileNameLength = fileName.size();
-  int netLength = htonl(fileNameLength);
-  if (!sendAll(serverSocket, (char *)&netLength, sizeof(netLength))) {
+  if (!send(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0)) {
     std::cout << "- Failed to send file name length.\n";
     return;
   }
 
   // Send the file name itself
-  if (!sendAll(serverSocket, fileName.c_str(), fileNameLength)) {
+  if (!send(serverSocket, fileName.c_str(), fileNameLength, 0)) {
     std::cout << "- Failed to send file name.\n";
     return;
   }
 
-  std::cout << "[ FILE ]: \"" << fileName << "\" sent successfully.\n";
+  // Open the file and reads it in binary mode
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    std::cout << "- Failed to open the file " << fileName << std::endl;
+    return;
+  }
+
+  // Send file size (in bytes)
+  file.seekg(0, std::ios::end);
+  int fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+  send(serverSocket, (char *)&fileSize, sizeof(fileSize), 0);
+
+  // Send file to server in binary
+  char buffer[4096];
+  while (!file.eof()) {
+    file.read(buffer, sizeof(buffer));
+    int bytesRead = file.gcount();
+    send(serverSocket, buffer, bytesRead, 0);
+  }
+  std::cout << "[ FILE ]: \"" << fileName << "\" sent successfully to server\n";
+  file.close();
 }
 
 int main() {
@@ -116,9 +114,12 @@ int main() {
       std::cout << "- Client closed sucessfully" << std::endl;
       break;
     } else if (msg == "receive") {
-      reciveFiles(clientSocket);
+      receiveFiles(clientSocket);
     } else if (msg == "send") {
       sendFiles(clientSocket);
+    } else {
+      std::cout << "- Invalid command please use (send, receive or exit)"
+                << std::endl;
     }
   }
   closesocket(clientSocket);

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -9,46 +10,58 @@
 std::vector<SOCKET> clients;
 std::mutex clientsMutex;
 
-int recvAll(SOCKET sock, char *buffer, int length) {
-  int total = 0;
-  while (total < length) {
-    int bytes = recv(sock, buffer + total, length - total, 0);
-    if (bytes <= 0)
-      return bytes; // disconnected or error
-    total += bytes;
-  }
-  return total;
-}
-
 void handleClient(SOCKET client) {
   while (true) {
     // Receive file name length
-    int netLength;
-    if (recvAll(client, (char *)&netLength, sizeof(netLength)) <= 0)
+    int fileNameLength;
+    if (recv(client, (char *)&fileNameLength, sizeof(fileNameLength), 0) <= 0)
       break;
-    int fileNameLength = ntohl(netLength);
 
     // Receive file name
-    char *fileName = new char[fileNameLength + 1];
-    if (recvAll(client, fileName, fileNameLength) <= 0) {
-      delete[] fileName;
+    char fileName[256];
+    if (recv(client, fileName, fileNameLength, 0) <= 0)
       break;
-    }
     fileName[fileNameLength] = '\0';
 
-    std::cout << "[ FILE ]: " << fileName << " received" << std::endl;
+    // Create file to start writing on it
+    std::string savingPath = "C:\\Users\\Adam\\Desktop\\";
+    std::string fullpath = savingPath + fileName;
+    std::ofstream file(fullpath, std::ios::binary);
+    if (!file) {
+      std::cout << "[ FILE ]: " << fileName << " can't be created on path "
+                << "\"" << savingPath << "\"" << std::endl;
+    }
+
+    // Receive file size
+    int fileSize;
+    if (recv(client, (char *)&fileSize, sizeof(fileSize), 0) <= 0)
+      break;
+
+    // Receiving data and writing on the created file
+    char buffer[4096];
+    int bytesReceived = 0;
+    while (bytesReceived < fileSize) {
+      int toReceive = std::min(fileSize - bytesReceived, (int)sizeof(buffer));
+      int r = recv(client, buffer, toReceive, 0);
+      if (r <= 0)
+        break;
+      file.write(buffer, r);
+      bytesReceived += r;
+    }
+    file.close();
+    std::cout << "[ FILE ]: " << fileName
+              << " received successfully from client, and is going to get "
+                 "transfered to all the connected clients on the server"
+              << std::endl;
 
     // Broadcast to other clients
-    int netLengthToSend = htonl(fileNameLength);
     std::lock_guard<std::mutex> lock(clientsMutex);
     for (SOCKET c : clients) {
       if (c != client) {
-        send(c, (char *)&netLengthToSend, sizeof(netLengthToSend), 0);
+        send(c, (char *)&fileNameLength, sizeof(fileNameLength), 0);
         send(c, fileName, fileNameLength, 0);
       }
     }
-
-    delete[] fileName;
   }
 
   // Remove client
