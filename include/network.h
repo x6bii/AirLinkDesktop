@@ -6,6 +6,7 @@
 #include <vector>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#pragma once
 
 std::vector<SOCKET> clients;
 std::mutex clientsMutex;
@@ -91,4 +92,104 @@ void handleClient(SOCKET client) {
                 clients.end());
   std::cout << "[ CLIENT ]: " << " client disconnected" << std::endl;
   closesocket(client);
+}
+
+void receiveFiles(SOCKET serverSocket) {
+
+  std::cout << "- Waiting for clients to send..." << std::endl;
+
+  // Receive file name length
+  int fileNameLength = 0;
+  if (recv(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0) <=
+      0) {
+    std::cout << "- Receiving file name length failed" << std::endl;
+    return;
+  }
+
+  // Receive file name
+  char fileName[512];
+  if (recv(serverSocket, fileName, fileNameLength, 0) <= 0) {
+    std::cout << "- Receiving file name failed" << std::endl;
+    return;
+  }
+  fileName[fileNameLength] = '\0';
+
+  // Create the file for writing
+  std::string path = "D:\\Adam\\AirLink\\";
+  std::string fullPath = path + fileName;
+  std::ofstream file(fullPath, std::ios::binary);
+  if (!file) {
+    std::cout << "- The file " << fileName
+              << " can't be created on path : " << "\"" << path << "\""
+              << std::endl;
+  }
+
+  // Get file size on bytes
+  long long fileSize;
+  if (recv(serverSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0)
+    return;
+
+  // Get & write the file data
+  char buffer[4096];
+  int receivedBytes = 0;
+  while (receivedBytes < fileSize) {
+    int toReceive =
+        (int)std::min<long long>(fileSize - receivedBytes, sizeof(buffer));
+    int r = recv(serverSocket, buffer, toReceive, 0);
+    if (r <= 0)
+      break;
+    file.write(buffer, r);
+    receivedBytes += r;
+  }
+  file.close();
+  std::cout << "- The file \"" << fileName << "\" received successfully"
+            << std::endl;
+}
+
+void sendFiles(SOCKET serverSocket) {
+  // Ask for file path
+  std::string path;
+  std::cout << "- Please enter file path: ";
+  std::getline(std::cin, path);
+
+  // Extract file name
+  size_t fileNameIndex = path.find_last_of("\\/");
+  std::string fileName = path.substr(fileNameIndex + 1);
+
+  // Open the file and reads it in binary mode
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    std::cout << "- Failed to open the file " << fileName << std::endl;
+    return;
+  }
+
+  // Send file name length in network byte order
+  int fileNameLength = fileName.size();
+  if (!send(serverSocket, (char *)&fileNameLength, sizeof(fileNameLength), 0)) {
+    std::cout << "- Failed to send file name length.\n";
+    return;
+  }
+
+  // Send the file name itself
+  if (!send(serverSocket, fileName.c_str(), fileNameLength, 0)) {
+    std::cout << "- Failed to send file name.\n";
+    return;
+  }
+
+  // Send file size (in bytes)
+  file.seekg(0, std::ios::end);
+  long long fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+  send(serverSocket, (char *)&fileSize, sizeof(fileSize), 0);
+
+  // Send file to server in binary
+  char buffer[4096];
+  while (!file.eof()) {
+    file.read(buffer, sizeof(buffer));
+    int bytesRead = file.gcount();
+    send(serverSocket, buffer, bytesRead, 0);
+  }
+  std::cout << "- The file \"" << fileName
+            << "\" sent successfully to server\n";
+  file.close();
 }
