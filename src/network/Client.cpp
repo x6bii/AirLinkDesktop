@@ -25,12 +25,14 @@ int main() {
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(54000);
   inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
-  if (connect(clientSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) ==
-      SOCKET_ERROR) {
-    std::cerr << "- Connection failed : " << WSAGetLastError() << std::endl;
-    closesocket(clientSocket);
-    WSACleanup();
-    return 1;
+  while (true) {
+    if (connect(clientSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) ==
+        SOCKET_ERROR) {
+      std::cout << "- Server not available, retrying in 1 second...\n";
+      Sleep(1000);
+      continue;
+    }
+    break;
   }
   std::cout << "- Connected to server" << std::endl;
   std::string msg;
