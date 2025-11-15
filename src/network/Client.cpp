@@ -39,10 +39,12 @@ int main() {
     if (msg == "exit") {
       std::cout << "- Client closed sucessfully" << std::endl;
       break;
-    } else if (msg == "receive") {
-      receiveFiles(clientSocket);
-    } else if (msg == "send") {
-      sendFiles(clientSocket);
+    } else if (msg.rfind("receive ", 0) == 0) {
+      std::string path = msg.substr(8);
+      receiveFiles(clientSocket, path);
+    } else if (msg.rfind("send ", 0) == 0) {
+      std::string path = msg.substr(5);
+      sendFiles(clientSocket, path);
     } else {
       std::cout << "- Invalid command please use (send, receive or exit)"
                 << std::endl;

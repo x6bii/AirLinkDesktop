@@ -94,7 +94,7 @@ void handleClient(SOCKET client) {
   closesocket(client);
 }
 
-void receiveFiles(SOCKET serverSocket) {
+void receiveFiles(SOCKET serverSocket, std::string path) {
 
   std::cout << "- Waiting for clients to send..." << std::endl;
 
@@ -115,7 +115,6 @@ void receiveFiles(SOCKET serverSocket) {
   fileName[fileNameLength] = '\0';
 
   // Create the file for writing
-  std::string path = "D:\\Adam\\AirLink\\";
   std::string fullPath = path + fileName;
   std::ofstream file(fullPath, std::ios::binary);
   if (!file) {
@@ -146,11 +145,7 @@ void receiveFiles(SOCKET serverSocket) {
             << std::endl;
 }
 
-void sendFiles(SOCKET serverSocket) {
-  // Ask for file path
-  std::string path;
-  std::cout << "- Please enter file path: ";
-  std::getline(std::cin, path);
+void sendFiles(SOCKET serverSocket, std::string path) {
 
   // Extract file name
   size_t fileNameIndex = path.find_last_of("\\/");
