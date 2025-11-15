@@ -48,3 +48,8 @@
 
 # Build directories
 /builds/
+
+# Node.js dependencies
+/electron/node_modules/
+package-lock.json
+package.json
