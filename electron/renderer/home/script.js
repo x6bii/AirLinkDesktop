@@ -1,11 +1,7 @@
-// import send icon & it's container
-const sendIcon = document.getElementById('send-icon');
-const sideBarButtonsContainer =
-    document.getElementById('sidebar-buttons-container');
 // import setting icon & it's container
 const settingIcon = document.getElementById('setting-icon');
-const sideBarButtonsContainer2 =
-    document.getElementById('sidebar-buttons-container2');
+const sideBarSettingsButtonContainer =
+    document.getElementById('sidebar-settingsButton-container');
 // import send file card and it's title
 const sendFileCard = document.getElementById('sendFileCard');
 const sendFileTitle = document.getElementById('sendFileTitle');
@@ -14,20 +10,15 @@ const receiveFileCard = document.getElementById('receiveFileCard');
 const receiveFileTitle = document.getElementById('receiveFileTitle');
 
 
-// changing the send button's icon (color) based on the hover
-sideBarButtonsContainer.addEventListener('mouseover', () => {
-  sendIcon.src = '../../assets/icons/send_icon_white.svg';
-})
-sideBarButtonsContainer.addEventListener('mouseout', () => {
-  sendIcon.src = '../../assets/icons/send_icon_black.svg';
-})
-
 // changing the setting button's icon (color) based on the hover
-sideBarButtonsContainer2.addEventListener('mouseover', () => {
-  settingIcon.src = '../../assets/icons/setting_icon_white.svg';
+sideBarSettingsButtonContainer.addEventListener('mouseover', () => {
+  settingIcon.src = '../../../assets/icons/setting_icon_white.svg';
 })
-sideBarButtonsContainer2.addEventListener('mouseout', () => {
-  settingIcon.src = '../../assets/icons/setting_icon_black.svg';
+sideBarSettingsButtonContainer.addEventListener('click', () => {
+  win.settings();
+})
+sideBarSettingsButtonContainer.addEventListener('mouseout', () => {
+  settingIcon.src = '../../../assets/icons/setting_icon_black.svg';
 })
 
 // changing the title color of the send file card

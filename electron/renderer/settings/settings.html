@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <title>AirLink Desktop</title>
+  </head>
+  <body>
+    <div class="sidebar">
+        <img src="../../../assets/icons/black_logo_png.png" class="logo">
+        <div class="sidebar-sendButton-container" id="sidebar-sendButton-container">
+        <img src="../../../assets/icons/send_icon_black.svg" id="send-icon" class="send-icon">
+        </div>
+        <div class="sidebar-settingsButton-container" id="sidebar-settingsButton-container">
+          <img src="../../../assets/icons/setting_icon_white.svg" id="setting-icon" class="setting-icon">
+        </div>
+    </div>
+    <div class="homeScreenContainer">
+      <h1 class="title">Settings</h1>
+      <div class="cardsContainer">
+    </div>
+  </body>
+  <script src="./script.js"></script>
+</html>
