@@ -25,6 +25,16 @@ sideBarSettingsButtonContainer.addEventListener('mouseout', () => {
 sendFileCard.addEventListener('mouseover', () => {
   sendFileTitle.style.color = 'white';
 })
+sendFileCard.addEventListener('click', async () => {
+  const filePath = await path.filePath();
+  if (filePath == undefined) {
+    return;
+  } else {
+    await cpp.spawnServer();
+    await cpp.spawnSendClient();
+    await cpp.useSendClient(`send ${filePath}`);
+  }
+})
 sendFileCard.addEventListener('mouseout', () => {
   sendFileTitle.style.color = 'black';
 })
@@ -32,6 +42,18 @@ sendFileCard.addEventListener('mouseout', () => {
 // changing the title color of the receive file card
 receiveFileCard.addEventListener('mouseover', () => {
   receiveFileTitle.style.color = 'white';
+})
+receiveFileCard.addEventListener('click', async () => {
+  const receivingPath = await path.receivingPath();
+  const fullReceivingPath = receivingPath + '\\';
+  if (receivingPath == undefined) {
+    return;
+  } else {
+    await cpp.spawnServer();
+    await cpp.spawnReceiveClient();
+    await cpp.useReceiveClient(`receive ${fullReceivingPath}`)
+    console.log('Receiving Path: ', fullReceivingPath);
+  }
 })
 receiveFileCard.addEventListener('mouseout', () => {
   receiveFileTitle.style.color = 'black';
