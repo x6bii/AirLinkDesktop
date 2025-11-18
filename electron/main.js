@@ -1,6 +1,8 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
-const path = require('path');
-const {spawn} = require('child_process');
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const path = require("path");
+const { spawn } = require("child_process");
+const os = require("os");
+const Store = require("electron-store");
 
 let win;
 let sendClient;
@@ -12,11 +14,11 @@ const createWindow = () => {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    titleBarStyle: 'hidden',
+    titleBarStyle: "hidden",
     autoHideMenuBar: true,
-    webPreferences: {preload: path.join(__dirname, 'preload.js')}
+    webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
-  win.loadFile('./renderer/home/index.html');
+  win.loadFile("./renderer/home/index.html");
 };
 
 // When ready event
@@ -25,66 +27,66 @@ app.whenReady().then(() => {
 });
 
 // Load windows inter processes
-ipcMain.handle('open-settings', () => {
-  win.loadFile('./renderer/settings/settings.html');
-})
-ipcMain.handle('open-home', () => {
-  win.loadFile('./renderer/home/index.html');
-})
+ipcMain.handle("open-settings", () => {
+  win.loadFile("./renderer/settings/settings.html");
+});
+ipcMain.handle("open-home", () => {
+  win.loadFile("./renderer/home/index.html");
+});
 
 // File & receiving path picker inter procces
-ipcMain.handle('file-path-picker', async () => {
+ipcMain.handle("file-path-picker", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ['openFile'],
+    properties: ["openFile"],
   });
   return result.filePaths[0];
-})
-ipcMain.handle('receiving-path-picker', async () => {
+});
+ipcMain.handle("receiving-path-picker", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ['openDirectory'],
-  })
+    properties: ["openDirectory"],
+  });
   return result.filePaths[0];
-})
+});
 
 // Spawn send client.cpp network protocol process
-ipcMain.handle('spawn-send-cpp-client', () => {
+ipcMain.handle("spawn-send-cpp-client", () => {
   if (sendClient) {
     return;
   } else {
-    sendClient = spawn('../builds/client.exe');
+    sendClient = spawn("../builds/client.exe");
   }
-})
+});
 
 // Spawn receive client.cpp network protocol process
-ipcMain.handle('spawn-receive-cpp-client', () => {
+ipcMain.handle("spawn-receive-cpp-client", () => {
   if (receiveClient) {
     return;
   } else {
-    receiveClient = spawn('../builds/client.exe');
+    receiveClient = spawn("../builds/client.exe");
   }
-})
+});
 
 // Send commands to send client.cpp network protocol process
-ipcMain.handle('send-send-command-to-cpp-client', (event, msg) => {
-  sendClient.stdin.write(msg + '\n');
-})
+ipcMain.handle("send-send-command-to-cpp-client", (event, msg) => {
+  sendClient.stdin.write(msg + "\n");
+});
 
 // Send commands to receive client.cpp network protocol process
-ipcMain.handle('send-receive-command-to-cpp-client', (event, msg) => {
-  receiveClient.stdin.write(msg + '\n');
-})
+ipcMain.handle("send-receive-command-to-cpp-client", (event, msg) => {
+  receiveClient.stdin.write(msg + "\n");
+});
 
 // Spawn server.cpp network protocol process
-ipcMain.handle('spawn-server-cpp-process', () => {
+ipcMain.handle("spawn-server-cpp-process", () => {
   if (server) {
     return;
   } else {
-    server = spawn('../builds/server.exe');
+    server = spawn("../builds/server.exe");
   }
-})
+});
 
 // Kill client.cpp netwrok protocol process
-ipcMain.handle('kill-client-cpp-process', () => {
+ipcMain.handle("kill-client-cpp-process", () => {
   if (sendClient) {
     sendClient.kill();
   } else if (receiveClient) {
@@ -92,20 +94,34 @@ ipcMain.handle('kill-client-cpp-process', () => {
   } else {
     return;
   }
-})
+});
 
 // Kill server.cpp netwrok protocol process
-ipcMain.handle('kill-server-cpp-process', () => {
+ipcMain.handle("kill-server-cpp-process", () => {
   if (server) {
     server.kill();
   } else {
     return;
   }
-})
+});
+
+// Settings local data
+const settings = new Store();
+ipcMain.handle("save-username", (event, data) => {
+  settings.set("username", data);
+});
+ipcMain.handle("get-username", () => {
+  if (settings.get("username") == undefined) {
+    settings.set("username", os.hostname());
+    return settings.get("username");
+  } else {
+    return settings.get("username");
+  }
+});
 
 // App quitter
-app.on('windows-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("windows-all-closed", () => {
+  if (process.platform !== "darwin") {
     if (sendClient) {
       sendClient.kill();
     } else if (receiveClient) {
@@ -117,4 +133,4 @@ app.on('windows-all-closed', () => {
       return;
     }
   }
-})
+});

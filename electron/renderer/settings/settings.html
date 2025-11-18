@@ -16,17 +16,39 @@
   </head>
   <body>
     <div class="sidebar">
-        <img src="../../../assets/icons/black_logo_png.png" class="logo">
-        <div class="sidebar-sendButton-container" id="sidebar-sendButton-container">
-        <img src="../../../assets/icons/send_icon_black.svg" id="send-icon" class="send-icon">
-        </div>
-        <div class="sidebar-settingsButton-container" id="sidebar-settingsButton-container">
-          <img src="../../../assets/icons/setting_icon_white.svg" id="setting-icon" class="setting-icon">
-        </div>
+      <img src="../../../assets/icons/black_logo_png.png" class="logo" />
+      <div
+        class="sidebar-sendButton-container"
+        id="sidebar-sendButton-container"
+      >
+        <img
+          src="../../../assets/icons/send_icon_black.svg"
+          id="send-icon"
+          class="send-icon"
+        />
+      </div>
+      <div
+        class="sidebar-settingsButton-container"
+        id="sidebar-settingsButton-container"
+      >
+        <img
+          src="../../../assets/icons/setting_icon_white.svg"
+          id="setting-icon"
+          class="setting-icon"
+        />
+      </div>
     </div>
     <div class="homeScreenContainer">
       <h1 class="title">Settings</h1>
-      <div class="cardsContainer">
+      <div class="profile-container">
+        <div class="user-details">
+          <img src="../../../assets/icons/default_pfp.jpg" class="user-icon" />
+          <div class="profile-text-container" id="profile-text-container">
+            <h4 class="profile-title">Username</h4>
+          </div>
+        </div>
+        <div class="buttons" id="profile-buttons-container"></div>
+      </div>
     </div>
   </body>
   <script src="./script.js"></script>
