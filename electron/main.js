@@ -4,34 +4,51 @@ const { spawn } = require("child_process");
 const os = require("os");
 const Store = require("electron-store");
 
-let win;
+let mainWin;
+let clientPickerWin;
 let sendClient;
 let receiveClient;
 let server;
 
-// Window creation function
-const createWindow = () => {
-  win = new BrowserWindow({
-    width: 800,
+// Main window creation function
+const createMainWindow = () => {
+  mainWin = new BrowserWindow({
+    width: 900,
+    height: 600,
+    autoHideMenuBar: true,
+    icon: "../assets/icons/main_logo.png",
+    webPreferences: { preload: path.join(__dirname, "preload.js") },
+  });
+  mainWin.loadFile("./renderer/home/index.html");
+};
+
+// Client picker window creation function
+const clientPickerWindow = (fileName) => {
+  clientPickerWin = new BrowserWindow({
+    width: 400,
     height: 600,
     titleBarStyle: "hidden",
     autoHideMenuBar: true,
+    icon: "../assets/icons/main_logo.png",
     webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
-  win.loadFile("./renderer/home/index.html");
+  clientPickerWin.loadFile("./renderer/client/clientPicker.html");
+  clientPickerWin.webContents.on("did-finish-load", () => {
+    clientPickerWin.webContents.send("file-name", fileName);
+  });
 };
 
 // When ready event
 app.whenReady().then(() => {
-  createWindow();
+  createMainWindow();
 });
 
 // Load windows inter processes
 ipcMain.handle("open-settings", () => {
-  win.loadFile("./renderer/settings/settings.html");
+  mainWin.loadFile("./renderer/settings/settings.html");
 });
 ipcMain.handle("open-home", () => {
-  win.loadFile("./renderer/home/index.html");
+  mainWin.loadFile("./renderer/home/index.html");
 });
 
 // File & receiving path picker inter procces
@@ -117,6 +134,33 @@ ipcMain.handle("get-username", () => {
   } else {
     return settings.get("username");
   }
+});
+
+// Send ipv4 address
+ipcMain.handle("get-ipv4-addr", () => {
+  function getIPv4() {
+    const nets = os.networkInterfaces();
+    let ipv4 = null;
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === "IPv4" && !net.internal) {
+          ipv4 = net.address;
+          break;
+        }
+      }
+      if (ipv4) break;
+    }
+    return ipv4;
+  }
+  return getIPv4();
+});
+
+// Handle client picker window
+ipcMain.handle("open-client-picker", (event, fileName) => {
+  clientPickerWindow(fileName);
+});
+ipcMain.handle("close-client-picker", () => {
+  clientPickerWin.close();
 });
 
 // App quitter

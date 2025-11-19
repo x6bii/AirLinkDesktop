@@ -40,4 +40,15 @@ contextBridge.exposeInMainWorld("save", {
 // Get local data via main process
 contextBridge.exposeInMainWorld("get", {
   userName: () => ipcRenderer.invoke("get-username"),
+  ipv4Addr: () => ipcRenderer.invoke("get-ipv4-addr"),
+});
+
+// Client picker window handler
+contextBridge.exposeInMainWorld("clientPicker", {
+  open: (fileName) => ipcRenderer.invoke("open-client-picker", fileName),
+  close: () => ipcRenderer.invoke("close-client-picker"),
+  getFileName: (callback) =>
+    ipcRenderer.on("file-name", (event, fileName) => {
+      callback(fileName);
+    }),
 });

@@ -25,6 +25,18 @@ async function loadName() {
 }
 loadName();
 
+// Load ipv4 address
+const ipText = document.getElementById("ip");
+async function loadIpv4() {
+  const ip = await get.ipv4Addr();
+  if (ip == null) {
+    return;
+  } else {
+    ipText.innerText = ip;
+  }
+}
+loadIpv4();
+
 // Handle edit button in settings/profile
 const buttonsContainer = document.getElementById("profile-buttons-container");
 

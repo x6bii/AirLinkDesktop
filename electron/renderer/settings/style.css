@@ -18,6 +18,9 @@
   font-family: "SanFrancisco-Bold";
   src: url("../../../assets/fonts/SFNSDisplay-Bold.otf") format("truetype");
 }
+* {
+  user-select: none;
+}
 body {
   margin: 0;
   padding: 0;
@@ -130,6 +133,7 @@ body {
   font-size: 16px;
   margin-top: -20px;
   color: rgb(100, 100, 100);
+  user-select: text;
 }
 .edit-button {
   font-family: "SanFrancisco-Bold";
@@ -166,4 +170,15 @@ body {
   border: none;
   outline: none;
   border-bottom: solid 1px rgb(255, 0, 0);
+}
+.ip-title {
+  font-family: "SanFrancisco-Bold";
+  font-size: 20px;
+  margin-top: 18px;
+  color: rgb(50, 50, 50);
+}
+.ip-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Devices - AirLink</title>
+  </head>
+  <body>
+    <div class="upper-bar">
+      <img src="../../../assets/icons/black_logo_png.png" class="logo" />
+      <h1 class="title">Share to</h1>
+    </div>
+    <div class="file">
+      <img class="file-icon" src="../../../assets/icons/file_card.png" />
+      <p class="file-name" id="file-name"></p>
+    </div>
+    <div class="devices" id="devices">
+      <div class="loading-container" id="loading-container">
+        <img
+          src="../../../assets/icons/loading.gif"
+          class="loading-gif"
+          id="loading-gif"
+        />
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="button" id="cancel-button">Cancel</button>
+      <button class="button" id="send-button">Send</button>
+    </div>
+  </body>
+  <script src="./script.js"></script>
+</html>

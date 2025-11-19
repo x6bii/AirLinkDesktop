@@ -1,0 +1,140 @@
+@font-face {
+  font-family: "SanFrancisco-Light";
+  src: url("../../../assets/fonts/SFNSText-Light.otf") format("truetype");
+}
+@font-face {
+  font-family: "SanFrancisco-Bold";
+  src: url("../../../assets/fonts/SFNSDisplay-Bold.otf") format("truetype");
+}
+* {
+  user-select: none;
+}
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100vh;
+}
+.upper-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+.logo {
+  width: 50px;
+  height: 50px;
+}
+.title {
+  font-family: "SanFrancisco-Bold";
+  font-size: 22px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 20px;
+}
+.devices {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  background-color: rgb(255, 255, 255);
+  border: solid 1px rgb(200, 200, 200);
+  border-radius: 12px;
+  margin: 10px 10px 10px 20px;
+  flex: 1;
+  width: calc(100% - 40px);
+}
+.devices > *:first-child {
+  margin-left: 11px;
+}
+.devices > *:nth-child(4) {
+  margin-left: 11px;
+}
+.devices > *:nth-child(7) {
+  margin-left: 11px;
+}
+.device {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: solid 1px rgb(220, 220, 220);
+  margin-top: 12px;
+  width: 65px;
+  height: 65px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+.device:hover {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.device-name {
+  font-family: "SanFrancisco-Light";
+  font-size: 12px;
+  color: rgb(100, 100, 100);
+}
+.mobile-icon {
+  margin-top: 10px;
+  width: 40px;
+  height: 40px;
+}
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+  margin-bottom: 13px;
+  justify-content: center;
+}
+.button {
+  font-family: "SanFrancisco-Bold";
+  font-size: 14px;
+  color: rgb(80, 80, 80);
+  border: solid 1px rgb(150, 150, 150);
+  border-radius: 15px;
+  padding: 8px 16px 8px 16px;
+  cursor: pointer;
+  background-color: white;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.button:hover {
+  background-color: rgb(80, 80, 80);
+  color: white;
+}
+.file {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  background-color: rgb(255, 255, 255);
+  border: solid 1px rgb(200, 200, 200);
+  border-radius: 12px;
+  margin: 15px 20px 0px 20px;
+}
+.file-name {
+  font-family: "SanFrancisco-Light";
+  font-size: 16px;
+  color: rgb(100, 100, 100);
+  user-select: text;
+}
+.file-icon {
+  width: 40px;
+  height: 40px;
+  margin-left: 8px;
+}
+.loading-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.loading-gif {
+  width: 160px;
+  height: 160px;
+  margin: auto;
+  margin-left: 90px;
+}

@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
@@ -12,7 +11,7 @@
       content="default-src 'self'; script-src 'self'"
     />
     <link rel="stylesheet" href="./style.css" />
-    <title>AirLink Desktop</title>
+    <title>Settings - AirLink</title>
   </head>
   <body>
     <div class="sidebar">
@@ -46,6 +45,10 @@
           <div class="profile-text-container" id="profile-text-container">
             <h4 class="profile-title">Username</h4>
           </div>
+        </div>
+        <div class="ip-details">
+          <h4 class="ip-title">IP Address</h4>
+          <p class="profile-username" id="ip">Offline</p>
         </div>
         <div class="buttons" id="profile-buttons-container"></div>
       </div>
