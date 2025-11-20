@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld("cpp", {
   spawnServer: () => ipcRenderer.invoke("spawn-cpp-server"),
   useClient: (msg) => ipcRenderer.invoke("send-command-to-cpp-client", msg),
   useServer: (msg) => ipcRenderer.invoke("send-command-to-cpp-server", msg),
+  onReceiveData: (data) => ipcRenderer.on("client-data", data),
   killClient: () => ipcRenderer.invoke("kill-cpp-client-process"),
   killServer: () => ipcRenderer.invoke("kill-cpp-server-process"),
 });
@@ -48,4 +49,10 @@ contextBridge.exposeInMainWorld("clientPicker", {
     ipcRenderer.on("file-name", (event, fileName) => {
       callback(fileName);
     }),
+});
+
+// Handle dialogs
+contextBridge.exposeInMainWorld("dialog", {
+  errorDialog: (title, message) =>
+    ipcRenderer.invoke("show-error", { title, message }),
 });

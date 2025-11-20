@@ -131,39 +131,25 @@ body {
   text-align: start;
   margin: 0 20px 20px 20px;
 }
-.recent-items-container {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  border-radius: 0.5rem;
-  background-color: #eee;
-  box-sizing: border-box;
-  box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
-  padding: 0.25rem;
-  width: 300px;
-  font-size: 14px;
+.query-items-container {
+  width: calc(100% - 80px);
+  height: calc(100vh - 310px);
   margin-left: 40px;
-}
-.radio {
-  flex: 1 1 auto;
-  text-align: center;
-}
-input {
-  display: none;
-}
-.name {
-  font-family: "SanFrancisco-Light";
   display: flex;
-  cursor: pointer;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 0.25rem;
-  border: none;
-  padding: 0.5rem 0;
-  color: rgba(51, 65, 85, 1);
-  transition: all 0.15s ease-in-out;
+  overflow-y: auto;
+  border: solid 1px rgb(200, 200, 200);
+  border-radius: 12px;
 }
-input:checked + .name {
-  background-color: #fff;
-  font-weight: 600;
+.no-data {
+  width: 250px;
+  height: 250px;
+}
+.no-data-text {
+  font-family: "SanFrancisco-Light";
+  font-size: 18px;
+  margin-top: -35px;
+  color: rgb(150, 150, 150);
 }

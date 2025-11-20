@@ -1,16 +1,8 @@
-// import setting icon & it's container
+// Changing the setting button's icon (color) based on the hover
 const settingIcon = document.getElementById("setting-icon");
 const sideBarSettingsButtonContainer = document.getElementById(
   "sidebar-settingsButton-container"
 );
-// import send file card and it's title
-const sendFileCard = document.getElementById("sendFileCard");
-const sendFileTitle = document.getElementById("sendFileTitle");
-// import recieve file card and it's title
-const receiveFileCard = document.getElementById("receiveFileCard");
-const receiveFileTitle = document.getElementById("receiveFileTitle");
-
-// changing the setting button's icon (color) based on the hover
 sideBarSettingsButtonContainer.addEventListener("mouseover", () => {
   settingIcon.src = "../../../assets/icons/setting_icon_white.svg";
 });
@@ -21,7 +13,9 @@ sideBarSettingsButtonContainer.addEventListener("mouseout", () => {
   settingIcon.src = "../../../assets/icons/setting_icon_black.svg";
 });
 
-// changing the title color of the send file card
+// Changing the title color of the send file card
+const sendFileCard = document.getElementById("sendFileCard");
+const sendFileTitle = document.getElementById("sendFileTitle");
 sendFileCard.addEventListener("mouseover", () => {
   sendFileTitle.style.color = "white";
 });
@@ -32,31 +26,27 @@ sendFileCard.addEventListener("click", async () => {
   } else {
     const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1);
     await clientPicker.open(fileName);
-    /*
-    await cpp.spawnServer();
-    await cpp.spawnSendClient();
-    await cpp.useSendClient(`send ${filePath}`);
-    */
+    await cpp.spawnClient();
+    await cpp.useClient(filePath);
   }
 });
 sendFileCard.addEventListener("mouseout", () => {
   sendFileTitle.style.color = "black";
 });
 
-// changing the title color of the receive file card
+// Changing the title color of the receive file card
+const receiveFileCard = document.getElementById("receiveFileCard");
+const receiveFileTitle = document.getElementById("receiveFileTitle");
 receiveFileCard.addEventListener("mouseover", () => {
   receiveFileTitle.style.color = "white";
 });
 receiveFileCard.addEventListener("click", async () => {
   const receivingPath = await path.receivingPath();
-  const fullReceivingPath = receivingPath + "\\";
   if (receivingPath == undefined) {
     return;
   } else {
     await cpp.spawnServer();
-    await cpp.spawnReceiveClient();
-    await cpp.useReceiveClient(`receive ${fullReceivingPath}`);
-    console.log("Receiving Path: ", fullReceivingPath);
+    await cpp.useServer(receivingPath);
   }
 });
 receiveFileCard.addEventListener("mouseout", () => {

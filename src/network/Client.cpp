@@ -18,6 +18,8 @@ void breakFunc(std::string &cmd) {
 };
 
 int main() {
+  std::string filePath;
+  std::getline(std::cin, filePath);
   WSADATA wsaData;
   int startupResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (startupResult != 0) {
@@ -85,8 +87,6 @@ int main() {
     WSACleanup();
     return 0;
   }
-  std::string filePath;
-  std::cin >> filePath;
   while (true) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {

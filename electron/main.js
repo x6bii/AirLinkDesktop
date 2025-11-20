@@ -6,6 +6,7 @@ const Store = require("electron-store");
 
 let mainWin;
 let clientPickerWin;
+let isClientPickerWin = false;
 let client;
 let server;
 
@@ -67,25 +68,23 @@ ipcMain.handle("receiving-path-picker", async () => {
 
 // Spawn client.cpp network protocol process
 ipcMain.handle("spawn-cpp-client", () => {
-  if (client) {
-    return;
-  } else {
-    client = spawn("../builds/client.exe");
-  }
+  client = spawn("../builds/client.exe");
 });
 
 // Spawn receive server.cpp network protocol process
 ipcMain.handle("spawn-cpp-server", () => {
-  if (server) {
-    return;
-  } else {
-    server = spawn("../builds/server.exe");
-  }
+  server = spawn("../builds/server.exe");
 });
 
 // Send commands to client.cpp network protocol process
 ipcMain.handle("send-command-to-cpp-client", (event, msg) => {
   client.stdin.write(msg + "\n");
+  // Send client.cpp output (std::cout) to preloader
+  client.stdout.on("data", (data) => {
+    if (isClientPickerWin) {
+      clientPickerWin.webContents.send("client-data", data.toString());
+    }
+  });
 });
 
 // Send commands to receive server.cpp network protocol process
@@ -146,10 +145,17 @@ ipcMain.handle("get-ipv4-addr", () => {
 
 // Handle client picker window
 ipcMain.handle("open-client-picker", (event, fileName) => {
+  isClientPickerWin = true;
   clientPickerWindow(fileName);
 });
 ipcMain.handle("close-client-picker", () => {
+  isClientPickerWin = false;
   clientPickerWin.close();
+});
+
+// Handle dialogs
+ipcMain.handle("show-error", (event, { title, message }) => {
+  dialog.showErrorBox(title, message);
 });
 
 // App quitter
