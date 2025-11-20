@@ -1,58 +1,132 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <network.h>
-#include <string>
 #include <thread>
+#include <vector>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
+void breakFunc(std::string &cmd) {
+  while (true) {
+    std::cin >> cmd;
+    if (cmd == "break") {
+      break;
+    }
+  }
+};
+
 int main() {
   WSADATA wsaData;
-  if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-    std::cerr << "- WSAStartup failed" << std::endl;
+  int startupResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (startupResult != 0) {
+    std::cout << "[ ERROR ] : WsaStartup failed error code " << startupResult
+              << std::endl;
     return 1;
   }
-  SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (clientSocket == INVALID_SOCKET) {
-    std::cerr << "- Socket creation failed : " << WSAGetLastError()
-              << std::endl;
+  std::string breakCmd;
+  std::thread breakThread(breakFunc, std::ref(breakCmd));
+  // udp
+  SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  sockaddr_in localAddr;
+  localAddr.sin_family = AF_INET;
+  localAddr.sin_port = htons(54001);
+  localAddr.sin_addr.s_addr = INADDR_ANY;
+  bind(udpSocket, (sockaddr *)&localAddr, sizeof(localAddr));
+  while (breakCmd != "break") {
+    std::string ipContainer;
+    char buffer[256];
+    sockaddr_in senderAddr;
+    int senderAddrSize = sizeof(senderAddr);
+    int bytes = recvfrom(udpSocket, buffer, sizeof(buffer) - 1, 0,
+                         (sockaddr *)&senderAddr, &senderAddrSize);
+    if (bytes <= 0) {
+      Sleep(5000);
+      continue;
+    }
+    buffer[bytes] = '\0';
+    ipContainer = inet_ntoa(senderAddr.sin_addr);
+    std::cout << ipContainer << std::endl;
+    Sleep(5000);
+  }
+  closesocket(udpSocket);
+  breakThread.join();
+  SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (serverSocket == INVALID_SOCKET) {
+    std::cout << "[ ERROR ] : Socket creation failed error code "
+              << WSAGetLastError() << std::endl;
     WSACleanup();
     return 1;
   }
-  sockaddr_in serverAddr;
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(54000);
-  inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
-  while (true) {
-    if (connect(clientSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) ==
-        SOCKET_ERROR) {
-      std::cout << "- Server not available, retrying in 1 second...\n";
+  std::string receiverIp;
+  std::cin >> receiverIp;
+  sockaddr_in receiverAddr;
+  receiverAddr.sin_family = AF_INET;
+  receiverAddr.sin_port = htons(54000);
+  inet_pton(AF_INET, receiverIp.c_str(), &receiverAddr.sin_addr);
+  int attemptsCount = 0;
+  bool isConnected = false;
+  while (attemptsCount <= 5) {
+    if (connect(serverSocket, (sockaddr *)&receiverAddr,
+                sizeof(receiverAddr)) == SOCKET_ERROR) {
+      std::cout << "[ ERROR ] : Couldn't connect to the server, error code "
+                << WSAGetLastError() << std::endl;
+      attemptsCount++;
       Sleep(1000);
       continue;
     }
+    isConnected = true;
     break;
   }
-  std::cout << "- Connected to server" << std::endl;
-  std::string msg;
-  while (true) {
-    std::getline(std::cin, msg);
-    if (msg == "exit") {
-      std::cout << "- Client closed sucessfully" << std::endl;
-      break;
-    } else if (msg.rfind("receive ", 0) == 0) {
-      std::string path = msg.substr(8);
-      receiveFiles(clientSocket, path);
-    } else if (msg.rfind("send ", 0) == 0) {
-      std::string path = msg.substr(5);
-      sendFiles(clientSocket, path);
-    } else {
-      std::cout << "- Invalid command please use (send, receive or exit)"
-                << std::endl;
-    }
+  if (isConnected == false) {
+    std::cout << "CAN'T CONNECT" << std::endl;
+    closesocket(serverSocket);
+    WSACleanup();
+    return 0;
   }
-  closesocket(clientSocket);
+  std::string filePath;
+  std::cin >> filePath;
+  while (true) {
+    std::ifstream file(filePath, std::ios::binary);
+    if (!file) {
+      std::cout << "ERROR" << std::endl;
+      break;
+    }
+    std::cout << "START" << std::endl;
+    size_t fileNameIndex = filePath.find_last_of("\\");
+    std::string fileName = filePath.substr(fileNameIndex + 1);
+    int fileNamelength = fileName.size();
+    if (send(serverSocket, (char *)&fileNamelength, sizeof(fileNamelength),
+             0) <= 0) {
+      std::cout << "BREAK" << std::endl;
+      break;
+    }
+    if (send(serverSocket, fileName.c_str(), fileNamelength, 0) <= 0) {
+      std::cout << "BREAK" << std::endl;
+      break;
+    }
+    file.seekg(0, std::ios::end);
+    long long fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+    if (send(serverSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0) {
+      std::cout << "BREAK" << std::endl;
+      break;
+    }
+    char buffer[4096];
+    while (!file.eof()) {
+      file.read(buffer, sizeof(buffer));
+      int bytesRead = file.gcount();
+      if (send(serverSocket, buffer, bytesRead, 0) <= 0) {
+        std::cout << "BREAK" << std::endl;
+        break;
+      }
+    }
+    file.close();
+    std::cout << "DONE" << std::endl;
+    break;
+  }
+  closesocket(serverSocket);
   WSACleanup();
   return 0;
 }

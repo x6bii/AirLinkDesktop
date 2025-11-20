@@ -1,10 +1,30 @@
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iostream>
+#include <thread>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 #pragma comment(lib, "ws2_32.lib")
+
+void broadcastingFunc(bool &working) {
+  SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  sockaddr_in broadcastAddr;
+  broadcastAddr.sin_family = AF_INET;
+  broadcastAddr.sin_port = htons(54001);
+  broadcastAddr.sin_addr.s_addr = INADDR_BROADCAST;
+  int enableBroadcast = 1;
+  setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, (char *)&enableBroadcast,
+             sizeof(enableBroadcast));
+  while (working) {
+    const char *msg = "AIRLINK";
+    sendto(udpSocket, msg, strlen(msg), 0, (sockaddr *)&broadcastAddr,
+           sizeof(broadcastAddr));
+    Sleep(500);
+  }
+  closesocket(udpSocket);
+};
 
 int main() {
   std::string receivingPath;
@@ -16,6 +36,8 @@ int main() {
               << std::endl;
     return 1;
   }
+  bool udpBroadcasting = true;
+  std::thread udpThread(broadcastingFunc, std::ref(udpBroadcasting));
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (serverSocket == INVALID_SOCKET) {
     std::cout << "[ ERROR ] : Socket creation failed error code "
@@ -55,6 +77,8 @@ int main() {
       continue;
     }
     std::cout << "START" << std::endl;
+    udpBroadcasting = false;
+    udpThread.join();
     int fileNameLength;
     if (recv(clientSocket, (char *)&fileNameLength, sizeof(fileNameLength),
              0) <= 0) {
@@ -62,7 +86,7 @@ int main() {
       closesocket(clientSocket);
       break;
     }
-    char fileName[256];
+    char fileName[256] = {0};
     if (recv(clientSocket, fileName, fileNameLength, 0) <= 0) {
       std::cout << "BREAKED" << std::endl;
       closesocket(clientSocket);
@@ -70,7 +94,7 @@ int main() {
     }
     fileName[fileNameLength] = '\0';
     std::cout << "NAME: " << fileName << std::endl;
-    std::string fullPath = receivingPath + fileName;
+    std::string fullPath = receivingPath + "\\" + fileName;
     std::ofstream file(fullPath, std::ios::binary);
     if (!file) {
       std::cout << "ERROR" << std::endl;
@@ -83,7 +107,7 @@ int main() {
       closesocket(clientSocket);
       break;
     }
-    char buffer[4096];
+    char buffer[4096] = {0};
     int bytesReceived = 0;
     while (bytesReceived < fileSize) {
       int toReceive =
