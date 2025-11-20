@@ -8,6 +8,7 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+// Broadcasting function
 void broadcastingFunc(bool &working) {
   SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   sockaddr_in broadcastAddr;
@@ -27,8 +28,10 @@ void broadcastingFunc(bool &working) {
 };
 
 int main() {
+  // Receiving path
   std::string receivingPath;
   std::getline(std::cin, receivingPath);
+  // Winsock2 initialize
   WSADATA wsaData;
   int startupResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (startupResult != 0) {
@@ -36,8 +39,10 @@ int main() {
               << std::endl;
     return 1;
   }
+  // UDP thread
   bool udpBroadcasting = true;
   std::thread udpThread(broadcastingFunc, std::ref(udpBroadcasting));
+  // TCP socket
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (serverSocket == INVALID_SOCKET) {
     std::cout << "[ ERROR ] : Socket creation failed error code "
@@ -69,6 +74,7 @@ int main() {
   } else {
     std::cout << "LISTENING" << std::endl;
   }
+  // Receiving loop
   while (true) {
     SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
     if (clientSocket == SOCKET_ERROR) {

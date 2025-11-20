@@ -8,6 +8,7 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+// BreakThread function
 void breakFunc(std::string &cmd) {
   while (true) {
     std::cin >> cmd;
@@ -18,8 +19,10 @@ void breakFunc(std::string &cmd) {
 };
 
 int main() {
+  // File path
   std::string filePath;
   std::getline(std::cin, filePath);
+  // Winsock2 initialize
   WSADATA wsaData;
   int startupResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (startupResult != 0) {
@@ -27,15 +30,17 @@ int main() {
               << std::endl;
     return 1;
   }
+  // BreakThread
   std::string breakCmd;
   std::thread breakThread(breakFunc, std::ref(breakCmd));
-  // udp
+  // UDP socket
   SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   sockaddr_in localAddr;
   localAddr.sin_family = AF_INET;
   localAddr.sin_port = htons(54001);
   localAddr.sin_addr.s_addr = INADDR_ANY;
   bind(udpSocket, (sockaddr *)&localAddr, sizeof(localAddr));
+  // Scanning loop
   while (breakCmd != "break") {
     std::string ipContainer;
     char buffer[256];
@@ -52,8 +57,10 @@ int main() {
     std::cout << ipContainer << std::endl;
     Sleep(5000);
   }
+  // Socket cleanup
   closesocket(udpSocket);
   breakThread.join();
+  // TCP socket
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (serverSocket == INVALID_SOCKET) {
     std::cout << "[ ERROR ] : Socket creation failed error code "
@@ -61,6 +68,7 @@ int main() {
     WSACleanup();
     return 1;
   }
+  // Connect socket
   std::string receiverIp;
   std::cin >> receiverIp;
   sockaddr_in receiverAddr;
@@ -69,6 +77,7 @@ int main() {
   inet_pton(AF_INET, receiverIp.c_str(), &receiverAddr.sin_addr);
   int attemptsCount = 0;
   bool isConnected = false;
+  // Loop to connect
   while (attemptsCount <= 5) {
     if (connect(serverSocket, (sockaddr *)&receiverAddr,
                 sizeof(receiverAddr)) == SOCKET_ERROR) {
@@ -81,12 +90,14 @@ int main() {
     isConnected = true;
     break;
   }
+  // Quit condition
   if (isConnected == false) {
     std::cout << "CAN'T CONNECT" << std::endl;
     closesocket(serverSocket);
     WSACleanup();
     return 0;
   }
+  // Sending loop
   while (true) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {
