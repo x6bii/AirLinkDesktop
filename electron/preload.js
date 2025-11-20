@@ -21,15 +21,12 @@ contextBridge.exposeInMainWorld("path", {
 
 // Communicate with cpp process via main process
 contextBridge.exposeInMainWorld("cpp", {
-  spawnSendClient: () => ipcRenderer.invoke("spawn-send-cpp-client"),
-  spawnReceiveClient: () => ipcRenderer.invoke("spawn-receive-cpp-client"),
-  useSendClient: (msg) =>
-    ipcRenderer.invoke("send-send-command-to-cpp-client", msg),
-  useReceiveClient: (msg) =>
-    ipcRenderer.invoke("send-receive-command-to-cpp-client", msg),
-  spawnServer: () => ipcRenderer.invoke("spawn-server-cpp-process"),
-  killClient: () => ipcRenderer.invoke("kill-client-cpp-process"),
-  killServer: () => ipcRenderer.invoke("kill-server-cpp-process"),
+  spawnClient: () => ipcRenderer.invoke("spawn-cpp-client"),
+  spawnServer: () => ipcRenderer.invoke("spawn-cpp-server"),
+  useClient: (msg) => ipcRenderer.invoke("send-command-to-cpp-client", msg),
+  useServer: (msg) => ipcRenderer.invoke("send-command-to-cpp-server", msg),
+  killClient: () => ipcRenderer.invoke("kill-cpp-client-process"),
+  killServer: () => ipcRenderer.invoke("kill-cpp-server-process"),
 });
 
 // Save local data via main process
