@@ -49,33 +49,46 @@ function newDevice(deviceName, ipv4) {
     } else {
       await cpp.useClient("break");
       await cpp.useClient(ip);
+      await clientPicker.close();
     }
   });
 }
 const ips = [];
-const resStatus = ["BREAK", "DONE", "START", "ERROR", "CAN'T CONNECT"];
-cpp.onReceiveData((event, data) => {
-  data = data.trim();
+const resStatus = [
+  "BREAK",
+  "DONE",
+  "START",
+  "ERROR",
+  "CAN'T CONNECT",
+  "0",
+  "5",
+  "10",
+  "15",
+  "20",
+  "25",
+  "30",
+  "35",
+  "40",
+  "45",
+  "50",
+  "55",
+  "60",
+  "65",
+  "70",
+  "75",
+  "80",
+  "85",
+  "90",
+  "95",
+  "100",
+];
+cpp.onReceiveClientData((event, data) => {
+  if (typeof data === "string") data = data.trim();
   if (!resStatus.includes(data)) {
     if (!ips.includes(data)) {
       ips.push(data);
       newDevice("Device", data);
       console.log(`New device: ${data}`);
     }
-  }
-  if (data == "DONE") {
-    clientPicker.close();
-  }
-  if (data == "ERROR") {
-    dialog.errorDialog("ERROR", "There was an error reading the selected file");
-  }
-  if (data == "BREAK") {
-    dialog.errorDialog("BREAK", "Client disconnected from the server");
-  }
-  if (data == "CAN'T CONNECT") {
-    dialog.errorDialog(
-      "CAN'T CONNECT",
-      "Client couldn't connect to the server"
-    );
   }
 });

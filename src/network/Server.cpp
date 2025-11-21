@@ -83,8 +83,11 @@ int main() {
       continue;
     }
     std::cout << "START" << std::endl;
+    Sleep(10);
+    // Stop udp broadcasting
     udpBroadcasting = false;
     udpThread.join();
+    // Get file name length
     int fileNameLength;
     if (recv(clientSocket, (char *)&fileNameLength, sizeof(fileNameLength),
              0) <= 0) {
@@ -92,6 +95,7 @@ int main() {
       closesocket(clientSocket);
       break;
     }
+    // Get file name
     char fileName[256] = {0};
     if (recv(clientSocket, fileName, fileNameLength, 0) <= 0) {
       std::cout << "BREAKED" << std::endl;
@@ -100,6 +104,7 @@ int main() {
     }
     fileName[fileNameLength] = '\0';
     std::cout << "NAME: " << fileName << std::endl;
+    // Create file
     std::string fullPath = receivingPath + "\\" + fileName;
     std::ofstream file(fullPath, std::ios::binary);
     if (!file) {
@@ -107,14 +112,18 @@ int main() {
       closesocket(clientSocket);
       break;
     }
+    // Get file size
     long long fileSize;
     if (recv(clientSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0) {
       std::cout << "BREAKED" << std::endl;
       closesocket(clientSocket);
       break;
     }
+    // Write on file
     char buffer[4096] = {0};
-    int bytesReceived = 0;
+    long long totalSize = fileSize;
+    int lastPercent = -1;
+    long long bytesReceived = 0;
     while (bytesReceived < fileSize) {
       int toReceive =
           (int)std::min<long long>(fileSize - bytesReceived, sizeof(buffer));
@@ -128,12 +137,20 @@ int main() {
       }
       file.write(buffer, bytesReceivedThisLoop);
       bytesReceived += bytesReceivedThisLoop;
+      int percent = (int)((bytesReceived * 100) / totalSize);
+      if (percent != lastPercent && percent % 5 == 0) {
+        std::cout << percent << std::endl;
+        lastPercent = percent;
+      }
     }
+    // Close file & cleanup
     file.close();
+    Sleep(200);
     std::cout << "DONE" << std::endl;
     closesocket(clientSocket);
     break;
   }
+  // Cleanup
   closesocket(serverSocket);
   WSACleanup();
   return 0;

@@ -69,22 +69,31 @@ ipcMain.handle("receiving-path-picker", async () => {
 // Spawn client.cpp network protocol process
 ipcMain.handle("spawn-cpp-client", () => {
   client = spawn("../builds/client.exe");
+  // Send client.cpp output (std::cout) to preloader
+  client.stdout.on("data", (data) => {
+    data = data.toString();
+    if (isClientPickerWin) {
+      clientPickerWin.webContents.send("client-data", data);
+    }
+  });
+  client.stdout.on("data", (data) => {
+    data = data.toString();
+    mainWin.webContents.send("client-data", data);
+  });
 });
 
 // Spawn receive server.cpp network protocol process
 ipcMain.handle("spawn-cpp-server", () => {
   server = spawn("../builds/server.exe");
+  server.stdout.on("data", (data) => {
+    data = data.toString();
+    mainWin.webContents.send("server-data", data);
+  });
 });
 
 // Send commands to client.cpp network protocol process
 ipcMain.handle("send-command-to-cpp-client", (event, msg) => {
   client.stdin.write(msg + "\n");
-  // Send client.cpp output (std::cout) to preloader
-  client.stdout.on("data", (data) => {
-    if (isClientPickerWin) {
-      clientPickerWin.webContents.send("client-data", data.toString());
-    }
-  });
 });
 
 // Send commands to receive server.cpp network protocol process

@@ -55,7 +55,6 @@ int main() {
     buffer[bytes] = '\0';
     ipContainer = inet_ntoa(senderAddr.sin_addr);
     std::cout << ipContainer << std::endl;
-    Sleep(5000);
   }
   // Socket cleanup
   closesocket(udpSocket);
@@ -99,44 +98,66 @@ int main() {
   }
   // Sending loop
   while (true) {
+    // Open file
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {
       std::cout << "ERROR" << std::endl;
       break;
     }
     std::cout << "START" << std::endl;
+    Sleep(10);
+    // Get file name
     size_t fileNameIndex = filePath.find_last_of("\\");
     std::string fileName = filePath.substr(fileNameIndex + 1);
+    std::cout << "NAME: " << fileName << std::endl;
     int fileNamelength = fileName.size();
+    // Send file name length
     if (send(serverSocket, (char *)&fileNamelength, sizeof(fileNamelength),
              0) <= 0) {
       std::cout << "BREAK" << std::endl;
       break;
     }
+    // Send file name
     if (send(serverSocket, fileName.c_str(), fileNamelength, 0) <= 0) {
       std::cout << "BREAK" << std::endl;
       break;
     }
+    // Read file size
     file.seekg(0, std::ios::end);
     long long fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
+    // Send file size
     if (send(serverSocket, (char *)&fileSize, sizeof(fileSize), 0) <= 0) {
       std::cout << "BREAK" << std::endl;
       break;
     }
+    // Send file
     char buffer[4096];
+    long long totalSize = fileSize;
+    long long sentBytes = 0;
+    int lastPercent = -1;
     while (!file.eof()) {
       file.read(buffer, sizeof(buffer));
       int bytesRead = file.gcount();
-      if (send(serverSocket, buffer, bytesRead, 0) <= 0) {
+      int bytesSent = send(serverSocket, buffer, bytesRead, 0);
+      if (bytesSent <= 0) {
         std::cout << "BREAK" << std::endl;
         break;
       }
+      sentBytes += bytesSent;
+      int percent = (int)((sentBytes * 100) / totalSize);
+      if (percent != lastPercent && percent % 5 == 0) {
+        std::cout << percent << std::endl;
+        lastPercent = percent;
+      }
     }
+    // Close file
     file.close();
+    Sleep(200);
     std::cout << "DONE" << std::endl;
     break;
   }
+  // Cleanup
   closesocket(serverSocket);
   WSACleanup();
   return 0;
