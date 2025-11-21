@@ -86,6 +86,7 @@ receiveFileCard.addEventListener("mouseout", () => {
 });
 
 // Start a query
+const percentage = ["0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"];
 function newQuery(type) {
   const queryContainer = document.getElementById("query-items-container");
   queryContainer.style.flexDirection = "";
@@ -106,29 +107,6 @@ function newQuery(type) {
   const progressBar = document.createElement("progress");
   progressBar.className = "progressBar";
   progressBar.max = "100";
-  const percentage = [
-    "0",
-    "5",
-    "10",
-    "15",
-    "20",
-    "25",
-    "30",
-    "35",
-    "40",
-    "45",
-    "50",
-    "55",
-    "60",
-    "65",
-    "70",
-    "75",
-    "80",
-    "85",
-    "90",
-    "95",
-    "100",
-  ];
 
   if (type === "sending") {
     const uploadCard = document.createElement("img");
@@ -139,7 +117,6 @@ function newQuery(type) {
     cpp.onReceiveClientData((event, data) => {
       if (typeof data === "string") data = data.trim();
       if (percentage.includes(data)) {
-        console.log("sending percentage: ", data);
         progressBar.value = data;
       }
       if (data.startsWith("NAME: ")) {
@@ -240,7 +217,6 @@ function newQuery(type) {
     cpp.onReceiveServerData((event, data) => {
       if (typeof data === "string") data = data.trim();
       if (percentage.includes(data)) {
-        console.log("receiving percentage: ", data);
         progressBar.value = data;
       }
       if (data.startsWith("NAME: ")) {
