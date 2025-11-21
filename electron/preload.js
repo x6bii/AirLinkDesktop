@@ -7,10 +7,13 @@ contextBridge.exposeInMainWorld("versions", {
   electron: () => process.versions.electron,
 });
 
-// Load windows from main process
+// Load windows from main process & handle window buttons
 contextBridge.exposeInMainWorld("win", {
   settings: () => ipcRenderer.invoke("open-settings"),
   home: () => ipcRenderer.invoke("open-home"),
+  minimize: () => ipcRenderer.invoke("window-minimize"),
+  toggleMaximize: () => ipcRenderer.invoke("window-toggle-maximize"),
+  close: () => ipcRenderer.invoke("window-close"),
 });
 
 // Get paths from main process

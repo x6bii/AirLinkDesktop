@@ -44,6 +44,18 @@ app.whenReady().then(() => {
   createMainWindow();
 });
 
+// Handle window buttons
+ipcMain.handle("window-minimize", () => {
+  mainWin.minimize();
+});
+ipcMain.handle("window-toggle-maximize", () => {
+  if (mainWin.isMaximized()) mainWin.unmaximize();
+  else mainWin.maximize();
+});
+ipcMain.handle("window-close", () => {
+  mainWin.close();
+});
+
 // Load windows inter processes
 ipcMain.handle("open-settings", () => {
   mainWin.loadFile("./renderer/settings/settings.html");
