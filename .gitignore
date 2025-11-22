@@ -46,9 +46,6 @@
 # VSCode settings
 .vscode/
 
-# cpp files directories
-src/
-
 # Node.js dependencies
 node_modules/
 package-lock.json
