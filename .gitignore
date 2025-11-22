@@ -46,6 +46,9 @@
 # VSCode settings
 .vscode/
 
+# Dist folder
+dist/
+
 # Node.js dependencies
 node_modules/
 package-lock.json

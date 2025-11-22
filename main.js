@@ -17,10 +17,13 @@ const createMainWindow = () => {
     height: 600,
     titleBarStyle: "hidden",
     autoHideMenuBar: true,
-    icon: "./assets/icons/main_logo.png",
-    webPreferences: { preload: path.join(__dirname, "preload.js") },
+    icon: "assets/icons/main_logo.png",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      devTools: false,
+    },
   });
-  mainWin.loadFile("./renderer/home/index.html");
+  mainWin.loadFile("renderer/home/index.html");
 };
 
 // Client picker window creation function
@@ -30,10 +33,13 @@ const clientPickerWindow = (fileName) => {
     height: 600,
     titleBarStyle: "hidden",
     autoHideMenuBar: true,
-    icon: "./assets/icons/main_logo.png",
-    webPreferences: { preload: path.join(__dirname, "preload.js") },
+    icon: "assets/icons/main_logo.png",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      devTools: false,
+    },
   });
-  clientPickerWin.loadFile("./renderer/client/clientPicker.html");
+  clientPickerWin.loadFile("renderer/client/clientPicker.html");
   clientPickerWin.webContents.on("did-finish-load", () => {
     clientPickerWin.webContents.send("file-name", fileName);
   });
@@ -58,10 +64,10 @@ ipcMain.handle("window-close", () => {
 
 // Load windows inter processes
 ipcMain.handle("open-settings", () => {
-  mainWin.loadFile("./renderer/settings/settings.html");
+  mainWin.loadFile("renderer/settings/settings.html");
 });
 ipcMain.handle("open-home", () => {
-  mainWin.loadFile("./renderer/home/index.html");
+  mainWin.loadFile("renderer/home/index.html");
 });
 
 // File & receiving path picker inter procces
@@ -80,7 +86,14 @@ ipcMain.handle("receiving-path-picker", async () => {
 
 // Spawn client.cpp network protocol process
 ipcMain.handle("spawn-cpp-client", () => {
-  client = spawn("./builds/client.exe");
+  client = spawn(
+    path.join(
+      process.resourcesPath,
+      "app.asar.unpacked",
+      "builds",
+      "client.exe"
+    )
+  );
   // Send client.cpp output (std::cout) to preloader
   client.stdout.on("data", (data) => {
     data = data.toString();
@@ -96,7 +109,14 @@ ipcMain.handle("spawn-cpp-client", () => {
 
 // Spawn receive server.cpp network protocol process
 ipcMain.handle("spawn-cpp-server", () => {
-  server = spawn("./builds/server.exe");
+  server = spawn(
+    path.join(
+      process.resourcesPath,
+      "app.asar.unpacked",
+      "builds",
+      "server.exe"
+    )
+  );
   server.stdout.on("data", (data) => {
     data = data.toString();
     mainWin.webContents.send("server-data", data);
