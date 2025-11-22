@@ -46,8 +46,8 @@
 # VSCode settings
 .vscode/
 
-# Build directories
-/builds/
+# cpp files directories
+src/
 
 # Node.js dependencies
 node_modules/
