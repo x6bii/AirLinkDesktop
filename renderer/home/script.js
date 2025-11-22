@@ -3,31 +3,31 @@ const minimizeButton = document.getElementById("minimize-button");
 const fullScreenButton = document.getElementById("full-screen-button");
 const closeButton = document.getElementById("close-button");
 minimizeButton.addEventListener("mouseover", () => {
-  minimizeButton.src = "../../../assets/icons/minimize_button_on.png";
+  minimizeButton.src = "../../assets/icons/minimize_button_on.png";
 });
 minimizeButton.addEventListener("click", () => {
   win.minimize();
 });
 minimizeButton.addEventListener("mouseout", () => {
-  minimizeButton.src = "../../../assets/icons/minimize_button_off.png";
+  minimizeButton.src = "../../assets/icons/minimize_button_off.png";
 });
 fullScreenButton.addEventListener("mouseover", () => {
-  fullScreenButton.src = "../../../assets/icons/full_screen_button_on.png";
+  fullScreenButton.src = "../../assets/icons/full_screen_button_on.png";
 });
 fullScreenButton.addEventListener("click", () => {
   win.toggleMaximize();
 });
 fullScreenButton.addEventListener("mouseout", () => {
-  fullScreenButton.src = "../../../assets/icons/full_screen_button_off.png";
+  fullScreenButton.src = "../../assets/icons/full_screen_button_off.png";
 });
 closeButton.addEventListener("mouseover", () => {
-  closeButton.src = "../../../assets/icons/close_button_on.png";
+  closeButton.src = "../../assets/icons/close_button_on.png";
 });
 closeButton.addEventListener("click", () => {
   win.close();
 });
 closeButton.addEventListener("mouseout", () => {
-  closeButton.src = "../../../assets/icons/close_button_off.png";
+  closeButton.src = "../../assets/icons/close_button_off.png";
 });
 
 // Changing the setting button's icon (color) based on the hover
@@ -36,13 +36,13 @@ const sideBarSettingsButtonContainer = document.getElementById(
   "sidebar-settingsButton-container"
 );
 sideBarSettingsButtonContainer.addEventListener("mouseover", () => {
-  settingIcon.src = "../../../assets/icons/setting_icon_white.svg";
+  settingIcon.src = "../../assets/icons/setting_icon_white.svg";
 });
 sideBarSettingsButtonContainer.addEventListener("click", () => {
   win.settings();
 });
 sideBarSettingsButtonContainer.addEventListener("mouseout", () => {
-  settingIcon.src = "../../../assets/icons/setting_icon_black.svg";
+  settingIcon.src = "../../assets/icons/setting_icon_black.svg";
 });
 
 // Changing the title color of the send file card
@@ -86,7 +86,29 @@ receiveFileCard.addEventListener("mouseout", () => {
 });
 
 // Start a query
-const percentage = ["0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"];
+const percentage = [
+  "0",
+  "5",
+  "10",
+  "15",
+  "20",
+  "25",
+  "30",
+  "35",
+  "40",
+  "45",
+  "50",
+  "55",
+  "60",
+  "65",
+  "70",
+  "75",
+  "80",
+  "85",
+  "90",
+  "95",
+  "100",
+];
 function newQuery(type) {
   const queryContainer = document.getElementById("query-items-container");
   queryContainer.style.flexDirection = "";
@@ -110,7 +132,7 @@ function newQuery(type) {
 
   if (type === "sending") {
     const uploadCard = document.createElement("img");
-    uploadCard.src = "../../../assets/icons/upload_card.png";
+    uploadCard.src = "../../assets/icons/upload_card.png";
     uploadCard.className = "queryCardIcon";
     uploadTitle.innerText = "Sending file...";
 
@@ -129,7 +151,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -151,7 +173,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -170,7 +192,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -192,7 +214,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -210,7 +232,7 @@ function newQuery(type) {
     queryTitle.appendChild(uploadCard);
   } else if (type === "receiving") {
     const downloadCard = document.createElement("img");
-    downloadCard.src = "../../../assets/icons/download_card.png";
+    downloadCard.src = "../../assets/icons/download_card.png";
     downloadCard.className = "queryCardIcon";
     uploadTitle.innerText = "Receiving file...";
 
@@ -229,7 +251,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -251,7 +273,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");
@@ -270,7 +292,7 @@ function newQuery(type) {
           queryItem.remove();
           if (!noDataImg) {
             const noDataImg = document.createElement("img");
-            noDataImg.src = "../../../assets/icons/no_file.png";
+            noDataImg.src = "../../assets/icons/no_file.png";
             noDataImg.id = "no-data-img";
             noDataImg.className = "no-data-img";
             const noDataText = document.createElement("h2");

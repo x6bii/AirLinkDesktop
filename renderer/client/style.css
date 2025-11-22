@@ -1,10 +1,10 @@
 @font-face {
   font-family: "SanFrancisco-Light";
-  src: url("../../../assets/fonts/SFNSText-Light.otf") format("truetype");
+  src: url("../../assets/fonts/SFNSText-Light.otf") format("truetype");
 }
 @font-face {
   font-family: "SanFrancisco-Bold";
-  src: url("../../../assets/fonts/SFNSDisplay-Bold.otf") format("truetype");
+  src: url("../../assets/fonts/SFNSDisplay-Bold.otf") format("truetype");
 }
 * {
   user-select: none;

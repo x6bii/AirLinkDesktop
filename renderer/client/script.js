@@ -26,7 +26,7 @@ function newDevice(deviceName, ipv4) {
   device.className = "device";
   device.id = ipv4;
   const phoneIcon = document.createElement("img");
-  phoneIcon.src = "../../../assets/icons/mobile_icon.svg";
+  phoneIcon.src = "../../assets/icons/mobile_icon.svg";
   phoneIcon.className = "mobile-icon";
   const phoneName = document.createElement("p");
   phoneName.className = "device-name";

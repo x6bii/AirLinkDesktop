@@ -17,7 +17,7 @@ const createMainWindow = () => {
     height: 600,
     titleBarStyle: "hidden",
     autoHideMenuBar: true,
-    icon: "../assets/icons/main_logo.png",
+    icon: "./assets/icons/main_logo.png",
     webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
   mainWin.loadFile("./renderer/home/index.html");
@@ -30,7 +30,7 @@ const clientPickerWindow = (fileName) => {
     height: 600,
     titleBarStyle: "hidden",
     autoHideMenuBar: true,
-    icon: "../assets/icons/main_logo.png",
+    icon: "./assets/icons/main_logo.png",
     webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
   clientPickerWin.loadFile("./renderer/client/clientPicker.html");
@@ -80,7 +80,7 @@ ipcMain.handle("receiving-path-picker", async () => {
 
 // Spawn client.cpp network protocol process
 ipcMain.handle("spawn-cpp-client", () => {
-  client = spawn("../builds/client.exe");
+  client = spawn("./builds/client.exe");
   // Send client.cpp output (std::cout) to preloader
   client.stdout.on("data", (data) => {
     data = data.toString();
@@ -96,7 +96,7 @@ ipcMain.handle("spawn-cpp-client", () => {
 
 // Spawn receive server.cpp network protocol process
 ipcMain.handle("spawn-cpp-server", () => {
-  server = spawn("../builds/server.exe");
+  server = spawn("./builds/server.exe");
   server.stdout.on("data", (data) => {
     data = data.toString();
     mainWin.webContents.send("server-data", data);

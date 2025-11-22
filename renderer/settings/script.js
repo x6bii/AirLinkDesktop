@@ -3,31 +3,31 @@ const minimizeButton = document.getElementById("minimize-button");
 const fullScreenButton = document.getElementById("full-screen-button");
 const closeButton = document.getElementById("close-button");
 minimizeButton.addEventListener("mouseover", () => {
-  minimizeButton.src = "../../../assets/icons/minimize_button_on.png";
+  minimizeButton.src = "../../assets/icons/minimize_button_on.png";
 });
 minimizeButton.addEventListener("click", () => {
   win.minimize();
 });
 minimizeButton.addEventListener("mouseout", () => {
-  minimizeButton.src = "../../../assets/icons/minimize_button_off.png";
+  minimizeButton.src = "../../assets/icons/minimize_button_off.png";
 });
 fullScreenButton.addEventListener("mouseover", () => {
-  fullScreenButton.src = "../../../assets/icons/full_screen_button_on.png";
+  fullScreenButton.src = "../../assets/icons/full_screen_button_on.png";
 });
 fullScreenButton.addEventListener("click", () => {
   win.toggleMaximize();
 });
 fullScreenButton.addEventListener("mouseout", () => {
-  fullScreenButton.src = "../../../assets/icons/full_screen_button_off.png";
+  fullScreenButton.src = "../../assets/icons/full_screen_button_off.png";
 });
 closeButton.addEventListener("mouseover", () => {
-  closeButton.src = "../../../assets/icons/close_button_on.png";
+  closeButton.src = "../../assets/icons/close_button_on.png";
 });
 closeButton.addEventListener("click", () => {
   win.close();
 });
 closeButton.addEventListener("mouseout", () => {
-  closeButton.src = "../../../assets/icons/close_button_off.png";
+  closeButton.src = "../../assets/icons/close_button_off.png";
 });
 
 // Changing the send button's icon (color) based on the hover
@@ -36,13 +36,13 @@ const sideBarSendButtonContainer = document.getElementById(
   "sidebar-sendButton-container"
 );
 sideBarSendButtonContainer.addEventListener("mouseover", () => {
-  sendIcon.src = "../../../assets/icons/send_icon_white.svg";
+  sendIcon.src = "../../assets/icons/send_icon_white.svg";
 });
 sideBarSendButtonContainer.addEventListener("click", () => {
   win.home();
 });
 sideBarSendButtonContainer.addEventListener("mouseout", () => {
-  sendIcon.src = "../../../assets/icons/send_icon_black.svg";
+  sendIcon.src = "../../assets/icons/send_icon_black.svg";
 });
 
 // Load the username from main process
